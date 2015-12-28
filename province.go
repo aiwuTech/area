@@ -14,34 +14,55 @@
 package area
 
 type AreaProvince struct {
-    AreaCounty
+	AreaCounty
 	Cities []*AreaCity `json:"cities"`
 }
 
-func (this *AreaProvince) GetName(code string) (string, bool) {
-    if this.Code == code {
-        return this.Name, true
-    }
+func (this *AreaProvince) GetAreaByCode(code string) (Arear, bool) {
+	if this.Code == code {
+		return this, true
+	}
 
-    for _, city := range this.Cities {
-        if name, ok := city.GetName(code); ok {
-            return name, true
-        }
-    }
+	for _, city := range this.Cities {
+		if arear, ok := city.GetAreaByCode(code); ok {
+			return arear, true
+		}
+	}
 
-    return "", false
+	return nil, false
 }
 
-func (this *AreaProvince) GetCode(name string) (string, bool) {
-    if this.Name == name {
-        return this.Code, true
-    }
+func (this *AreaProvince) GetAreaByName(name string) (Arear, bool) {
+	if this.Name == name {
+		return this, true
+	}
 
-    for _, city := range this.Cities {
-        if code, ok := city.GetCode(name); ok {
-            return code, true
-        }
-    }
+	for _, city := range this.Cities {
+		if arear, ok := city.GetAreaByName(name); ok {
+			return arear, true
+		}
+	}
 
-    return "", false
+	return nil, false
 }
+
+func (this *AreaProvince) Children() []string {
+	children := []string{}
+	for _, city := range this.Cities {
+		if city.Code != "" {
+			children = append(children, city.Code)
+		}
+		children = append(children, city.Children()...)
+	}
+
+	return children
+}
+
+func (this *AreaProvince) GetCode() string {
+    return this.Code
+}
+
+func (this *AreaProvince) GetName() string {
+    return this.Name
+}
+

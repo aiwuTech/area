@@ -19,30 +19,61 @@ import (
 )
 
 type Arear interface {
-	GetName(code string) (string, bool)
-	GetCode(name string) (string, bool)
+	GetAreaByCode(code string) (Arear, bool)
+	GetAreaByName(name string) (Arear, bool)
+	Children() []string
+	GetCode() string
+	GetName() string
 }
 
 type Area struct {
 	Countries []*AreaCountry `json:"countries"`
 }
 
-func (this *Area) GetName(code string) (string, bool) {
-    for _, country := range this.Countries {
-        if name, ok := country.GetName(code); ok {
-            return name, true
-        }
-    }
-    return "", false
+func (this *Area) GetAreaByCode(code string) (Arear, bool) {
+	for _, country := range this.Countries {
+		if arear, ok := country.GetAreaByCode(code); ok {
+			return arear, true
+		}
+	}
+	return nil, false
 }
 
-func (this *Area) GetCode(name string) (string, bool) {
-    for _, country := range this.Countries {
-        if code, ok := country.GetCode(name); ok {
-            return code, true
-        }
-    }
-    return "", false
+func (this *Area) GetAreaByName(name string) (Arear, bool) {
+	for _, country := range this.Countries {
+		if arear, ok := country.GetAreaByName(name); ok {
+			return arear, true
+		}
+	}
+	return nil, false
+}
+
+func (this *Area) Children() []string {
+	children := []string{}
+	for _, country := range this.Countries {
+		if country.Code != "" {
+			children = append(children, country.Code)
+		}
+		children = append(children, country.Children()...)
+	}
+
+	return children
+}
+
+func (this *Area) GetCode() string {
+	return ""
+}
+
+func (this *Area) GetName() string {
+	return ""
+}
+
+func (this *Area) Parent() Arear {
+    return nil
+}
+
+func (this *Area) String() string {
+    return ""
 }
 
 func NewAreaByJson(areaJson string) *Area {
@@ -67,4 +98,3 @@ func NewArea(countries ...*AreaCountry) *Area {
 
 	return area
 }
-
